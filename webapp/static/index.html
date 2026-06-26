@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Video Autopilot</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">▶</div>
+      <div class="brand-text">Video<span>Autopilot</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-view="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item" data-view="generate">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span>Generate</span>
+        <span class="nav-badge" id="runningBadge" style="display:none"></span>
+      </a>
+      <a class="nav-item" data-view="library">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="4" height="18" rx="1"/><rect x="9" y="3" width="4" height="18" rx="1"/><path d="M16 3l6 4-6 4V3z"/><path d="M16 14l6 4-6 4v-8z"/></svg>
+        <span>Library</span>
+      </a>
+      <a class="nav-item" data-view="channels">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>Channels</span>
+      </a>
+      <a class="nav-item" data-view="guide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        <span>Guide</span>
+      </a>
+      <a class="nav-item" data-view="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+    <div class="sidebar-keys" id="sidebarKeys"></div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main-content">
+
+    <!-- DASHBOARD -->
+    <section class="view active" id="view-dashboard">
+      <div class="page-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p class="page-sub">Your faceless content factory</p>
+        </div>
+        <button class="btn-primary" id="quickGenBtn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Quick Generate
+        </button>
+      </div>
+      <div class="setup-banner" id="setupBanner" style="display:none">
+        <div class="setup-banner-head">
+          <div class="setup-banner-title">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Get started
+          </div>
+          <span class="setup-progress" id="setupProgress"></span>
+        </div>
+        <div class="setup-steps" id="setupSteps"></div>
+      </div>
+      <div class="stats-row" id="statsRow"></div>
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-head">
+            <h3>Activity</h3>
+            <button class="btn-ghost btn-sm" id="refreshDash">↻ Refresh</button>
+          </div>
+          <div id="activityFeed" class="activity-feed"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Quick Generate</h3></div>
+          <div id="quickChannels" class="quick-channels"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GENERATE -->
+    <section class="view" id="view-generate">
+      <div class="page-header">
+        <div>
+          <h1>Generate</h1>
+          <p class="page-sub">Build and publish faceless videos on autopilot</p>
+        </div>
+      </div>
+      <div class="gen-layout">
+        <div class="gen-left">
+          <div class="card">
+            <div class="card-head"><h3>Channel</h3></div>
+            <div id="genChannelPicker" class="channel-picker"></div>
+            <div class="gen-options">
+              <div class="option-row">
+                <div class="option-label">
+                  <div class="option-name">Videos per run</div>
+                  <div class="option-hint">How many to generate in this batch</div>
+                </div>
+                <div class="number-input">
+                  <button id="countDown">−</button>
+                  <span id="countVal">1</span>
+                  <button id="countUp">+</button>
+                </div>
+              </div>
+              <div class="option-row toggle-row">
+                <div class="option-label">
+                  <div class="option-name">Dry-run mode</div>
+                  <div class="option-hint">Build locally, don't post to platforms</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="genDry" checked/>
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <div class="option-row toggle-row">
+                <div class="option-label">
+                  <div class="option-name">All channels</div>
+                  <div class="option-hint">Run every channel's posts_per_day quota</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="genAll"/>
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+            </div>
+            <button class="btn-primary btn-full" id="genBtn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Start Generation
+            </button>
+          </div>
+
+          <div class="card" id="pipelineCard">
+            <div class="card-head"><h3>Pipeline stages</h3></div>
+            <div class="pipeline-stages" id="pipelineStages">
+              <div class="stage" data-stage="ideation"><div class="stage-dot"></div><span>Ideation</span></div>
+              <div class="stage" data-stage="script"><div class="stage-dot"></div><span>Script</span></div>
+              <div class="stage" data-stage="voiceover"><div class="stage-dot"></div><span>Voiceover</span></div>
+              <div class="stage" data-stage="visuals"><div class="stage-dot"></div><span>Visuals</span></div>
+              <div class="stage" data-stage="captions"><div class="stage-dot"></div><span>Captions</span></div>
+              <div class="stage" data-stage="assemble"><div class="stage-dot"></div><span>Assemble</span></div>
+              <div class="stage" data-stage="metadata"><div class="stage-dot"></div><span>Metadata</span></div>
+              <div class="stage" data-stage="publish"><div class="stage-dot"></div><span>Publish</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gen-right card">
+          <div class="card-head">
+            <h3 id="logTitle">Live log</h3>
+            <div class="log-status-row">
+              <span class="status-pill idle" id="logStatus">idle</span>
+              <button class="btn-ghost btn-sm" id="clearLog">Clear</button>
+            </div>
+          </div>
+          <pre class="terminal" id="logOutput">Waiting to start…
+
+Hit "Start Generation" on the left to kick off the pipeline.
+Logs stream here live as each stage runs.
+
+Tip: keep Dry-run on until you've reviewed your first video in Library.</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIBRARY -->
+    <section class="view" id="view-library">
+      <div class="page-header">
+        <div>
+          <h1>Library</h1>
+          <p class="page-sub">Every video the pipeline has ever produced</p>
+        </div>
+        <div class="library-controls">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="libSearch" placeholder="Search videos…"/>
+          </div>
+          <select id="libFilter" class="select-sm">
+            <option value="">All channels</option>
+          </select>
+        </div>
+      </div>
+      <div class="video-grid" id="libraryGrid"></div>
+    </section>
+
+    <!-- CHANNELS -->
+    <section class="view" id="view-channels">
+      <div class="page-header">
+        <div>
+          <h1>Channels</h1>
+          <p class="page-sub">Your content accounts — edit in Settings → channels.yaml</p>
+        </div>
+        <button class="btn-outline" onclick="document.querySelector('[data-view=settings]').click()">Edit channels.yaml</button>
+      </div>
+      <div class="channel-cards" id="channelCards"></div>
+    </section>
+
+    <!-- GUIDE -->
+    <section class="view" id="view-guide">
+      <div class="page-header">
+        <div>
+          <h1>Complete Guide</h1>
+          <p class="page-sub">The full playbook — strategy, virality, monetization, compliance</p>
+        </div>
+      </div>
+      <div id="guideContent"><div class="loading-guide">Loading guide…</div></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="view-settings">
+      <div class="page-header">
+        <div>
+          <h1>Settings</h1>
+          <p class="page-sub">Edit pipeline configuration — validated before saving</p>
+        </div>
+      </div>
+      <div class="settings-layout">
+        <div class="settings-tabs">
+          <button class="stab active" data-cfg="settings.yaml">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            settings.yaml
+          </button>
+          <button class="stab" data-cfg="channels.yaml">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            channels.yaml
+          </button>
+          <button class="stab" data-cfg="keys">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            API Keys
+          </button>
+        </div>
+        <div class="settings-content">
+          <div id="settingsEditor" class="editor-pane active">
+            <textarea id="cfgEditor" spellcheck="false"></textarea>
+            <div class="editor-footer">
+              <span class="save-msg" id="cfgMsg"></span>
+              <button class="btn-primary" id="cfgSave">Save changes</button>
+            </div>
+          </div>
+          <div id="settingsKeys" class="keys-pane" style="display:none">
+            <div class="keys-intro">
+              <p>API key status is read from your <code>.env</code> file. Values are never shown here — only whether a key is present.</p>
+              <p>To add keys: edit <code>.env</code> in your project root and restart the server.</p>
+            </div>
+            <div id="keysGrid" class="keys-grid"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Video modal -->
+<div class="modal-backdrop" id="videoModal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-inner">
+      <video id="modalVideo" controls playsinline></video>
+      <div class="modal-info" id="modalInfo"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

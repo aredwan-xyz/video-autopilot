@@ -1,0 +1,14 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+output/*
+!output/.gitkeep
+!output/history.json
+assets/music/*
+!assets/music/.gitkeep
+assets/fonts/*
+!assets/fonts/.gitkeep
+assets/overlays/*
+!assets/overlays/.gitkeep
+.DS_Store

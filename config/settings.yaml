@@ -1,0 +1,70 @@
+# ── Global pipeline settings ─────────────────────────────────────────────────
+# Provider choices: swap these to change adapters with zero code changes.
+
+llm:
+  # provider options:
+  #   PAID  anthropic  (model: claude-opus-4-8 best | claude-sonnet-4-6 fast/cheap)
+  #   PAID  openai     (model: gpt-4o-mini | gpt-4o)
+  #   FREE  ollama     100% local, no key — run `ollama serve` + `ollama pull llama3.1`
+  #   FREE  groq       fast, generous free tier — model: llama-3.3-70b-versatile
+  #   FREE  openrouter many free models — model: meta-llama/llama-3.1-8b-instruct:free
+  #   FREE  gemini     Google free tier — model: gemini-1.5-flash
+  provider: groq
+  model: llama-3.3-70b-versatile
+  temperature: 0.9             # higher = more creative hooks
+
+tts:
+  provider: edge               # edge (free, no key) | elevenlabs (premium)
+  speed: 1.08                  # 1.05–1.15 reads energetic; Playbook §2
+  edge_voice: en-US-AriaNeural # see `edge-tts --list-voices`
+  elevenlabs_voice: Rachel     # ElevenLabs voice name/id
+  elevenlabs_stability: 0.4
+
+visuals:
+  provider: pexels             # pexels (free stock) | fal | replicate (AI images)
+  clips_per_video: 12          # ~1 visual per 2–3s of a 25–35s video
+  orientation: portrait        # portrait b-roll for 9:16
+  ai_image_style: "cinematic, high detail, dramatic lighting, vertical 9:16"
+
+captions:
+  enabled: true
+  model: base                  # whisper: tiny | base | small (accuracy vs speed)
+  style:
+    font: assets/fonts/Montserrat-ExtraBold.ttf
+    font_size: 92
+    primary_color: "&H00FFFFFF" # white (ASS BGR hex)
+    highlight_color: "&H0000F2FF" # active-word highlight (yellow)
+    outline: 6
+    shadow: 3
+    position: middle           # middle keeps eyes centered; top | middle | bottom
+    max_words_per_cue: 3       # word-by-word feel
+    uppercase: true
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  target_seconds: 30           # Playbook §4 sweet spot; 21–45 range
+  cut_every_seconds: 2.5       # visual change cadence (retention)
+  loudness_lufs: -14           # platform-normalized loudness
+  music_volume_db: -22         # ducked under voiceover
+  add_progress_bar: true       # subtle bottom progress bar boosts completion
+  safe_zone_padding: 220       # keep captions out of platform UI overlap
+
+metadata:
+  title_variants: 3
+  hashtags_per_post: 5         # 1 broad + 3 niche + 1 branded (Playbook §5)
+
+publish:
+  provider: dry_run            # dry_run | ayrshare | upload_post
+  queue: false                 # true = generate + queue for manual review, don't post live
+  stagger_seconds: 300         # space platform uploads apart
+  platforms: [youtube, tiktok, instagram, facebook]
+
+compliance:
+  ai_disclosure: true          # adds AI-assisted note + platform synthetic-media flag
+  disclaimers:
+    finance: "Not financial advice. For educational purposes only."
+    health: "Not medical advice. Consult a professional."
+
+output_dir: output

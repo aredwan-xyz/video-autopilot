@@ -1,0 +1,270 @@
+<div class="guide-wrap">
+
+  <!-- ── TOC ── -->
+  <nav class="guide-toc">
+    <div class="guide-toc-title">Contents</div>
+    <a class="toc-link" href="#g-start">🚀 Get Started</a>
+    <a class="toc-link" href="#g-niche">🎯 Pick a Niche</a>
+    <a class="toc-link" href="#g-anatomy">🧬 Video Anatomy</a>
+    <a class="toc-link" href="#g-hooks">🪝 Hook Formulas</a>
+    <a class="toc-link" href="#g-retention">⏱️ Retention Rules</a>
+    <a class="toc-link" href="#g-cadence">📅 Cadence</a>
+    <a class="toc-link" href="#g-platforms">📱 Per-Platform</a>
+    <a class="toc-link" href="#g-seo">🔍 SEO & Metadata</a>
+    <a class="toc-link" href="#g-money">💰 The Money</a>
+    <a class="toc-link" href="#g-scale">📈 Scaling</a>
+    <a class="toc-link" href="#g-compliance">⚖️ Compliance</a>
+    <a class="toc-link" href="#g-checklist">✅ Daily Checklist</a>
+    <a class="toc-link" href="#g-faq">❓ FAQ</a>
+  </nav>
+
+  <!-- ── SECTIONS ── -->
+  <div class="guide-sections">
+
+    <div class="g-section" id="g-start">
+      <h2>🚀 Get Started in 5 Steps</h2>
+      <ol class="steps-list">
+        <li><div><b>Install once.</b> Run <code>bash scripts/install_mac.sh</code> — installs ffmpeg, Python dependencies, and a caption font in one shot.</div></li>
+        <li><div><b>Add API keys.</b> Copy <code>.env.example</code> to <code>.env</code> and paste at minimum a <b>Claude/OpenAI key</b> and a <b>Pexels key</b> (both are free to get). The Settings → API Keys tab shows what's detected.</div></li>
+        <li><div><b>Pick your niche.</b> The three starter channels (Motivation, Money, Facts) are ready to go. Customise them in <b>Settings → channels.yaml</b>.</div></li>
+        <li><div><b>Run a dry-run.</b> Go to <b>Generate</b>, pick a channel, keep Dry-run ON, hit Start. Watch the pipeline run live and find your video in <b>Library</b>.</div></li>
+        <li><div><b>Go live.</b> Once a video looks right, configure a publish provider in settings.yaml, uncheck Dry-run, and add a cron job to run every day.</div></li>
+      </ol>
+      <div class="callout tip">
+        <b>100% free to start.</b> edge-tts (voice) + Pexels (visuals) + local Whisper (captions) = build unlimited videos for $0. Upgrade individual stages with your first revenue.
+      </div>
+      <h3>Cron automation (daily fire-and-forget)</h3>
+      <pre>crontab -e
+
+# Post once per channel at 8am, again at 6pm (2/day)
+0 8  * * *  /your/path/Video_Autopilot/scripts/run_daily.sh >> ~/va.log 2>&1
+0 18 * * *  /your/path/Video_Autopilot/scripts/run_daily.sh >> ~/va.log 2>&1</pre>
+    </div>
+
+    <div class="g-section" id="g-niche">
+      <h2>🎯 Pick a Niche That Pays</h2>
+      <p>This is the single most important decision. Score each candidate 1–5 on four axes. Only build channels that total <b>14 or higher</b>.</p>
+      <table class="g-table">
+        <tr><th>Axis</th><th>The question to ask</th></tr>
+        <tr><td><b>Monetizable</b></td><td>Do advertisers pay a high CPM here? Finance, tech, health &gt; comedy/memes.</td></tr>
+        <tr><td><b>Repeatable</b></td><td>Can you make 300+ videos without running dry?</td></tr>
+        <tr><td><b>Emotional</b></td><td>Does it trigger awe, fear, curiosity, motivation, or "I must save this"?</td></tr>
+        <tr><td><b>Faceless-fit</b></td><td>Can it be told with voiceover + stock/AI visuals, no presenter required?</td></tr>
+      </table>
+      <h3>Proven Faceless Niches</h3>
+      <table class="g-table">
+        <tr><th>Niche</th><th>Why it works</th><th>RPM tier</th></tr>
+        <tr><td>💪 Motivation / Discipline</td><td>Endlessly remixable, massive saves and shares</td><td>Low–Mid</td></tr>
+        <tr><td>💰 Personal Finance / Money</td><td>High advertiser RPM, extremely save-worthy</td><td class="hi">High</td></tr>
+        <tr><td>🧠 Psychology / "Did You Know"</td><td>Curiosity loop, broad demographic appeal</td><td>Mid</td></tr>
+        <tr><td>🏛️ History / Hidden Stories</td><td>Story-driven format, strong completion rates</td><td>Mid</td></tr>
+        <tr><td>🤖 AI Tools / Tech News</td><td>Trending topic, shareable, high advertiser value</td><td class="hi">High</td></tr>
+        <tr><td>🩺 Health / Longevity / Sleep</td><td>High save rate, excellent RPM — verify all claims</td><td class="hi">High</td></tr>
+        <tr><td>😱 Scary Stories / Mysteries</td><td>Binge-watch retention, strong watch-time signals</td><td>Low–Mid</td></tr>
+        <tr><td>🧘 Stoic Philosophy</td><td>Premium aesthetic, intensely loyal audience</td><td>Mid</td></tr>
+        <tr><td>📈 Business / Side-Hustles</td><td>Highest RPM tier, entrepreneurial audience</td><td class="hi">High</td></tr>
+      </table>
+      <div class="callout">
+        <b>One niche per channel.</b> The algorithm rewards a consistent topic signal. Run several single-niche channels rather than one mixed-topic channel. This is the biggest mistake new creators make.
+      </div>
+    </div>
+
+    <div class="g-section" id="g-anatomy">
+      <h2>🧬 Anatomy of a Viral Short (20–45s)</h2>
+      <table class="g-table">
+        <tr><th>Timestamp</th><th>Section</th><th>What to do</th></tr>
+        <tr><td class="t-col">0.0–1.5s</td><td><b>HOOK</b></td><td>Stop the scroll. Visual motion + a verbal pattern-interrupt. No intro, no logo.</td></tr>
+        <tr><td class="t-col">1.5–4s</td><td><b>PROMISE</b></td><td>Tell them exactly what they'll get and why they should stay. "…and #3 changed everything."</td></tr>
+        <tr><td class="t-col">4–30s</td><td><b>VALUE BEATS</b></td><td>3–5 punchy beats, one idea each. Visuals change every 2–3 seconds. No filler.</td></tr>
+        <tr><td class="t-col">30–40s</td><td><b>PAYOFF</b></td><td>Deliver the promise. This is the "save this" moment — make it land.</td></tr>
+        <tr><td class="t-col">last 2s</td><td><b>LOOP / CTA</b></td><td>Loop back to the first frame (replays count as watch time) or a soft "Follow for Part 2."</td></tr>
+      </table>
+      <p class="text-muted">The pipeline encodes this in <code>config/prompts/script.md</code>. Every generated script follows this exact structure. Tune it there to match your niche voice.</p>
+    </div>
+
+    <div class="g-section" id="g-hooks">
+      <h2>🪝 Hook Formulas</h2>
+      <p>The first 3 seconds decide everything. Here are the formulas that consistently stop the scroll:</p>
+      <ul class="hook-list">
+        <li><b>Contrarian:</b> "Stop doing ___ if you want ___."</li>
+        <li><b>Curiosity gap:</b> "Nobody talks about what happens when ___."</li>
+        <li><b>Number + payoff:</b> "5 ___ that ___ (the last one is completely free)."</li>
+        <li><b>Direct address:</b> "If you're under 30, watch this entire video."</li>
+        <li><b>Bold claim:</b> "This is the most underrated ___ of all time."</li>
+        <li><b>Question:</b> "Why do the richest people in the world never ___?"</li>
+        <li><b>Warning:</b> "Most people don't know this about ___ and it's costing them."</li>
+        <li><b>Story open:</b> "In 2008, a broke ___ discovered something that changed everything."</li>
+      </ul>
+      <p>The ideation prompt in <code>config/prompts/ideation.md</code> and script prompt in <code>config/prompts/script.md</code> bake these formulas into every generated video. Edit those files to customise for your niche voice.</p>
+    </div>
+
+    <div class="g-section" id="g-retention">
+      <h2>⏱️ Retention Rules</h2>
+      <p>These drive algorithmic reach more than any other factor. The pipeline enforces them automatically.</p>
+      <ol>
+        <li><b>Visual cut every 2–3 seconds.</b> Static footage = viewers scrolling away. Set <code>video.cut_every_seconds</code> in settings.yaml.</li>
+        <li><b>Word-by-word captions, always.</b> ~85% of short-form video is watched muted. The pipeline burns them in at the ffmpeg stage — they're not optional overlays.</li>
+        <li><b>No dead air.</b> Voiceover starts at exactly 0.0 seconds. No intro music, no logo, no "hey guys."</li>
+        <li><b>Pace audio fast.</b> The pipeline runs TTS at 1.05–1.15× speed by default. Feels energetic, not rushed.</li>
+        <li><b>Loop-ability.</b> The script prompt instructs the LLM to end where it began — replays inflate watch-time metrics that the algorithm tracks.</li>
+        <li><b>One idea per video.</b> Confusion kills retention. If it can't be explained in a subtitle line, it's two videos.</li>
+        <li><b>Progress bar.</b> The pipeline optionally burns a subtle bottom-edge progress bar. Small — but it anchors viewers to completion.</li>
+      </ol>
+    </div>
+
+    <div class="g-section" id="g-cadence">
+      <h2>📅 Posting Cadence & Scheduling</h2>
+      <table class="g-table">
+        <tr><th>Phase</th><th>Posts/day/channel</th><th>Best posting slots</th></tr>
+        <tr><td>Start (weeks 1–4)</td><td>1 strong post</td><td>One great video beats three mediocre ones in early weeks</td></tr>
+        <tr><td>Growth (month 2+)</td><td>2–3</td><td>7–9am · 12–1pm · 7–10pm (audience local time)</td></tr>
+      </table>
+      <ul>
+        <li><b>Consistency &gt; volume.</b> The same posting times daily trains both the algorithm and the audience expectation.</li>
+        <li><b>Stagger platforms by 5 minutes.</b> Don't fire identical posts to all four at the exact same second.</li>
+        <li><b>Batch-generate, drip-post.</b> Generate a week of content in one session. Queue the release. Don't dump 7 videos on day 1.</li>
+        <li><b>Never post the same byte-identical file</b> to multiple platforms. The pipeline re-encodes per platform automatically (safe zones, loudness normalisation).</li>
+      </ul>
+    </div>
+
+    <div class="g-section" id="g-platforms">
+      <h2>📱 Per-Platform Optimisation</h2>
+      <table class="g-table">
+        <tr><th></th><th>YouTube Shorts</th><th>TikTok</th><th>Instagram Reels</th><th>Facebook Reels</th></tr>
+        <tr><td>Sweet spot length</td><td>25–40s</td><td>21–34s</td><td>20–35s</td><td>25–45s</td></tr>
+        <tr><td>Primary ranking signal</td><td>Title keywords + watch %</td><td>Sound + completion + shares</td><td>Shares / saves + watch %</td><td>Shares + watch time</td></tr>
+        <tr><td>Best for</td><td>Searchable, evergreen content</td><td>Fastest viral velocity</td><td>Save-worthy aesthetics</td><td>Older demo, highest RPM</td></tr>
+        <tr><td>Caption strategy</td><td>SEO title + 3–5 tags</td><td>Hook in caption + 3–5 trending tags</td><td>Hook + 3–5 niche tags</td><td>Short hook, fewer tags</td></tr>
+      </table>
+      <div class="callout warn">
+        <b>Watermarks kill reach.</b> TikTok actively suppresses Reels that contain its watermark, and vice versa. This system renders one clean, watermark-free master and re-encodes separately for each platform. Never skip this.
+      </div>
+    </div>
+
+    <div class="g-section" id="g-seo">
+      <h2>🔍 SEO & Metadata</h2>
+      <p>This is where you win free reach without paying for ads. The pipeline generates all of this automatically from the script — tune the metadata prompt in <code>config/prompts/metadata.md</code>.</p>
+      <ul>
+        <li><b>Title:</b> Front-load the keyword + curiosity gap. The pipeline generates 3 variants per video — pick the best one.</li>
+        <li><b>Description:</b> 1–2 line hook + keyword + soft CTA. Keep it scannable.</li>
+        <li><b>Hashtags:</b> 3–5 intentional tags — 1 broad (#motivation) + 3 niche-specific + 1 branded channel tag. Not just #fyp #viral.</li>
+        <li><b>Pinned first comment:</b> A question that invites replies. Comments are a ranking signal. The pipeline suggests one per video.</li>
+        <li><b>Thumbnail (Shorts):</b> High-contrast subject + ≤3 bold words. The pipeline outputs thumbnail text — you design the image.</li>
+      </ul>
+    </div>
+
+    <div class="g-section" id="g-money">
+      <h2>💰 The Money</h2>
+      <h3>Stack Revenue Streams — Never Rely on One</h3>
+      <div class="revenue-grid">
+        <div class="rev-card"><h4>💹 Platform Ad Share</h4><p>YouTube Shorts Fund, TikTok Creativity Program, IG/FB bonuses. Slow to reach gates but compounds.</p></div>
+        <div class="rev-card"><h4>🔗 Affiliate Links</h4><p>Bio + pinned comment. Highest early ROI. No follower minimum. Works from video 1.</p></div>
+        <div class="rev-card"><h4>📦 Digital Product</h4><p>Ebook / template / Notion / course once you have an audience. 100% margin.</p></div>
+        <div class="rev-card"><h4>🤝 Brand Deals / UGC</h4><p>Once a channel demonstrates a niche audience. Often more than ad share.</p></div>
+        <div class="rev-card"><h4>📊 Channel as Asset</h4><p>Faceless channels sell for 20–40× monthly profit. Build, monetise, exit.</p></div>
+        <div class="rev-card"><h4>🌍 Localise Winners</h4><p>Translate top scripts into other languages. New TTS voice = new market, near zero cost.</p></div>
+      </div>
+
+      <h3>Monetisation Gates (verify — they change)</h3>
+      <table class="g-table">
+        <tr><th>Platform</th><th>Rough threshold for ad revenue</th></tr>
+        <tr><td>YouTube (Shorts)</td><td>1,000 subscribers + 10M Shorts views / 90 days (or 4,000 watch-hours)</td></tr>
+        <tr><td>TikTok Creativity Program</td><td>10,000 followers + 100,000 views / 30 days + videos ≥ 1 minute</td></tr>
+        <tr><td>Instagram / Facebook</td><td>Invite-based bonuses; affiliate + brand deals are the reliable early path</td></tr>
+      </table>
+
+      <div class="callout">
+        <b>Set the right expectations before you start.</b> This is a <b>portfolio + volume</b> game. Plan for 5–10 channels. Expect most to plateau and a few to carry the revenue. Don't judge any channel before 90 days / ~90 posts. Affiliate links and your own product almost always beat ad-share in the first 6 months. Reinvest early revenue into ElevenLabs voices and AI visuals — they lift retention, which compounds.
+      </div>
+
+      <h3>The Growth Flywheel</h3>
+      <pre>post daily → analytics finds top performers
+          ↓
+winning hooks & topics injected back into ideation
+          ↓
+next batch biases toward what worked → retention rises
+          ↓
+more algorithmic reach → more watch time → repeat</pre>
+    </div>
+
+    <div class="g-section" id="g-scale">
+      <h2>📈 Scaling to a Content Factory</h2>
+      <ol>
+        <li><b>Templatise each niche</b> — consistent font, music mood, visual style, colour palette. Output becomes recognisable, which builds brand recall.</li>
+        <li><b>Batch generate, drip release</b> — run a week's worth of content in one session on Sunday, then cron posts one at a time through the week.</li>
+        <li><b>Clone channels, not complexity</b> — add a new block to <code>channels.yaml</code>, change niche + voice + audience. The daily job loops over all channels automatically.</li>
+        <li><b>Multi-part series</b> — break big ideas into "Part 1/5" sequences. Every part farms follows and return visits.</li>
+        <li><b>Localise winners</b> — swap TTS voice language + translate the script. Near-zero cost, brand new market.</li>
+        <li><b>Kill losers fast</b> — if a channel shows no traction after 60–90 posts and A/B testing hooks, retire it and reallocate that slot to a stronger niche.</li>
+      </ol>
+    </div>
+
+    <div class="g-section" id="g-compliance">
+      <h2>⚖️ Compliance — Staying Un-Banned</h2>
+      <p>Automation at scale is explicitly allowed on all four platforms. What gets accounts banned is spam, stolen content, and rule-breaking — none of which this system does if you follow these rules.</p>
+      <ol>
+        <li><b>Original &gt; reposted.</b> This system generates original scripts + your own AI voiceover + licensed/AI visuals. Never rip and re-upload someone else's video.</li>
+        <li><b>Label AI content.</b> YouTube, TikTok, and Meta all require disclosure of synthetic/AI media. Keep <code>compliance.ai_disclosure: true</code> in settings.yaml — it adds the flag and an "AI-assisted" line to every description automatically.</li>
+        <li><b>No misinformation.</b> Especially health, finance, and news. The pipeline injects "not financial advice" / "not medical advice" disclaimers for those niches automatically.</li>
+        <li><b>No real-person impersonation or voice cloning</b> without explicit consent from that person.</li>
+        <li><b>Licensed assets only.</b> Royalty-free music in <code>assets/music/</code>. Pexels stock is free for commercial use. Check your AI image model's commercial terms.</li>
+        <li><b>One human-owned account per channel.</b> 1–3 posts/day is well within every platform's limits. Don't run engagement bots or fake view services.</li>
+      </ol>
+      <div class="callout danger">
+        <b>The one rule that kills channels:</b> re-uploading other creators' content with a logo slapped on it. The algorithm detects it. Rights holders DMCA it. Your account gets banned. This system makes <i>original</i> content — use it that way.
+      </div>
+    </div>
+
+    <div class="g-section" id="g-checklist">
+      <h2>✅ Daily Operator Checklist</h2>
+      <p>Takes about 5 minutes once you're set up. Don't skip the weekly review — that's where the feedback loop closes.</p>
+      <h3>Every day</h3>
+      <ul>
+        <li>Confirm the daily cron job ran (check logs or Library for new videos)</li>
+        <li>Skim each posted video for caption sync glitches or visual issues</li>
+        <li>Reply to 3 top comments per channel (engagement signal + content inspiration)</li>
+      </ul>
+      <h3>Every week</h3>
+      <ul>
+        <li>Run the analytics report: <code>python -m src.orchestrator --report</code></li>
+        <li>Identify top 3 videos by views/saves — extract the hook formula and topic angle</li>
+        <li>Add winning angles to trend seeds in <code>channels.yaml</code> so ideation biases toward them</li>
+        <li>Prune any channel with zero traction after 8 weeks (kill the losers fast)</li>
+        <li>Refresh hook formulas in <code>config/prompts/ideation.md</code> and <code>script.md</code></li>
+      </ul>
+    </div>
+
+    <div class="g-section" id="g-faq">
+      <h2>❓ Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <button class="faq-q">Do I need to show my face or record anything?</button>
+        <div class="faq-a">No. Everything is AI voiceover + licensed/AI stock visuals + burned-in word-by-word captions. "Faceless" means zero on-camera presence required.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What does it cost per month?</button>
+        <div class="faq-a">$0 on the free path: edge-tts (voice), Pexels (visuals), local Whisper (captions). Premium upgrades — ElevenLabs voices, AI-generated images, an auto-posting API — cost a few dollars per dozen videos. Add them with your first revenue.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">How fast will I start making money?</button>
+        <div class="faq-a">Treat it as a 90-day, multi-channel effort. Affiliate links work from day one (no follower minimum). Platform ad-share comes after you clear each platform's monetisation gate. Most creators who stick with the system see affiliate income within 30–60 days; ad-share within 90–180 days across multiple channels.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Will my accounts get banned for automating?</button>
+        <div class="faq-a">No. Posting 1–3 original, AI-disclosed videos per day is well within every platform's terms of service. Bans happen for spam, stolen content, engagement bots, or misinformation — none of which this system does.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Can I run more than 3 channels?</button>
+        <div class="faq-a">Yes — add a block to channels.yaml for each new account. The daily job loops over every channel automatically. This is how the economics work: 5–10 channels at 1–2 posts/day compounds far faster than 1 channel at 3 posts/day.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What if my videos aren't getting views?</button>
+        <div class="faq-a">First 90 days is data collection. The two biggest levers are the hook (first 3 seconds) and the niche choice. If traction is flat after 60 posts: (1) edit your hook formulas in the prompts, (2) check your niche score — it may not clear 14 on the 4-axis framework, (3) study the top 5 videos in your niche and extract what they have in common.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Can I post the same video to all 4 platforms?</button>
+        <div class="faq-a">Yes — and this system does it automatically. The pipeline renders one clean, watermark-free master and publishes to all platforms via a single API call. Each platform receives the same source video; captions and metadata are optimised per-platform.</div>
+      </div>
+    </div>
+
+  </div><!-- /guide-sections -->
+</div><!-- /guide-wrap -->

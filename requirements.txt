@@ -1,0 +1,21 @@
+# Core
+pyyaml>=6.0
+python-dotenv>=1.0
+requests>=2.31
+
+# LLM (install the one matching llm.provider)
+anthropic>=0.40        # Claude — default
+openai>=1.40           # optional alternative
+
+# Voiceover
+edge-tts>=6.1          # free TTS, no key
+
+# Captions (word-level timestamps, runs locally)
+faster-whisper>=1.0
+
+# Web dashboard
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9
+
+# ffmpeg is a SYSTEM dependency — installed via scripts/install_mac.sh (brew install ffmpeg)

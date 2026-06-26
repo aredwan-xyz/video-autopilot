@@ -1,0 +1,28 @@
+# Two services from one image:
+#   web    — the always-on dashboard (http://SERVER_IP:8000)
+#   daily  — a one-shot pipeline run you trigger from host cron
+#
+#   docker compose up -d web                    # start the dashboard
+#   docker compose run --rm daily               # build + publish all channels once
+#
+# Wire the daily run into the HOST crontab:
+#   0 9 * * * cd /path/to/Video_Autopilot && docker compose run --rm daily >> output/cron.log 2>&1
+services:
+  web:
+    build: .
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./output:/app/output
+      - ./config:/app/config
+    restart: unless-stopped
+
+  daily:
+    build: .
+    env_file: .env
+    volumes:
+      - ./output:/app/output
+      - ./config:/app/config
+    command: python -m src.orchestrator --all
+    profiles: ["jobs"]   # only runs when explicitly invoked, not on `up`
