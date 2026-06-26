@@ -1,17 +1,21 @@
 {
   "motivation": {
     "topics": [
-      "5AM Wake Up Challenge"
+      "5AM Wake Up Challenge",
+      "The 2-Minute Rule",
+      "The 1% Rule"
     ]
   },
   "money": {
     "topics": [
-      "The $5 Daily Habit"
+      "The $5 Daily Habit",
+      "The 50/30/20 Rule"
     ]
   },
   "facts": {
     "topics": [
-      "The 2-Minute Rule"
+      "The 2-Minute Rule",
+      "The Baader-Meinhof Phenomenon"
     ]
   }
 }
