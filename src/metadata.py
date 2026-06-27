@@ -1,15 +1,20 @@
 """Stage 7 — SEO titles, description, hashtags, pinned comment, thumbnail text."""
 from __future__ import annotations
 
+from typing import Optional
+
 from .config import load_prompt
 from .llm import complete
 from .utils import extract_json, log
 
 
-def build_metadata(cfg: dict, script: dict) -> dict:
+def build_metadata(cfg: dict, script: dict, idea: Optional[dict] = None) -> dict:
     ch = cfg["channel"]
+    idea = idea or {}
     prompt = load_prompt("metadata").format(
         niche=ch["niche"], name=ch["name"], full_script=script["full_script"],
+        primary_keyword=idea.get("primary_keyword", idea.get("title", ch["niche"])),
+        search_question=idea.get("search_question", ""),
         title_variants=cfg["metadata"]["title_variants"],
         hashtags_per_post=cfg["metadata"]["hashtags_per_post"],
     )

@@ -38,9 +38,10 @@ def make_one(cfg: dict) -> dict:
     voice = synthesize(cfg, script["full_script"], out)         # 3
     dur = ffprobe_duration(voice)
     clips = gather_visuals(cfg, script, out, dur)               # 4
-    captions = build_captions(cfg, voice, out)                  # 5
+    captions = build_captions(cfg, voice, out,                  # 5
+                              hook_title=script.get("on_screen_title", ""))
     video = assemble(cfg, clips, voice, captions, out)          # 6
-    meta = build_metadata(cfg, script)                          # 7
+    meta = build_metadata(cfg, script, idea)                    # 7
     result = publish(cfg, video, meta)                          # 8
 
     save_json(out / "metadata.json", {

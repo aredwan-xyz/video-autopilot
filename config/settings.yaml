@@ -17,7 +17,9 @@ tts:
   provider: edge               # edge (free, no key) | elevenlabs (premium)
   speed: 1.08                  # 1.05–1.15 reads energetic; Playbook §2
   edge_voice: en-US-AriaNeural # see `edge-tts --list-voices`
-  elevenlabs_voice: Rachel     # ElevenLabs voice name/id
+  edge_rate: "+0%"             # extra pacing on top of speed; e.g. "+8%"
+  edge_pitch: "+0Hz"           # subtle warmth/energy; e.g. "+2Hz"
+  elevenlabs_voice: Rachel     # ElevenLabs voice name/id (premium = best audio)
   elevenlabs_stability: 0.4
 
 visuals:
@@ -29,13 +31,16 @@ visuals:
 captions:
   enabled: true
   model: base                  # whisper: tiny | base | small (accuracy vs speed)
+  hook_title_seconds: 2.6      # how long the animated hook title flashes on screen
   style:
     font: assets/fonts/Montserrat-ExtraBold.ttf
-    font_size: 92
-    primary_color: "&H00FFFFFF" # white (ASS BGR hex)
-    highlight_color: "&H0000F2FF" # active-word highlight (yellow)
-    outline: 6
-    shadow: 3
+    fontname: Montserrat       # font family name used inside the ASS
+    font_size: 92              # big, bold kinetic captions (auto-wraps to fit width)
+    primary_color: "&H00FFFFFF"   # white (ASS &HAABBGGRR)
+    highlight_color: "&H0000F2FF" # active-word highlight (vivid yellow)
+    outline_color: "&H00000000"   # black outline for legibility on any footage
+    outline: 5
+    shadow: 2
     position: middle           # middle keeps eyes centered; top | middle | bottom
     max_words_per_cue: 3       # word-by-word feel
     uppercase: true
@@ -44,11 +49,15 @@ video:
   width: 1080
   height: 1920
   fps: 30
-  target_seconds: 30           # Playbook §4 sweet spot; 21–45 range
-  cut_every_seconds: 2.5       # visual change cadence (retention)
+  target_seconds: 34           # Playbook §4 sweet spot; 21–45 range
+  cut_every_seconds: 2.3       # visual change cadence (retention)
   loudness_lufs: -14           # platform-normalized loudness
-  music_volume_db: -22         # ducked under voiceover
+  music_volume_db: -20         # ducked under voiceover (sidechain keeps voice clear)
   add_progress_bar: true       # subtle bottom progress bar boosts completion
+  progress_bar_color: "0x06D6A0"  # accent color (teal); 0xRRGGBB
+  color_grade: true            # cinematic contrast/saturation/vignette pass
+  crf: 19                      # x264 quality (lower = better; 18–20 is crisp)
+  encode_preset: medium        # x264 speed/quality; slow = best, medium = balanced
   safe_zone_padding: 220       # keep captions out of platform UI overlap
 
 metadata:

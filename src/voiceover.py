@@ -20,15 +20,29 @@ def synthesize(cfg: dict, text: str, out_dir: Path) -> Path:
     else:
         raise ValueError(f"Unknown tts.provider: {provider}")
 
-    # Normalize loudness + apply energetic speed-up (atempo) for retention.
+    # ── Broadcast voice-mastering chain (free, all in ffmpeg) ──
+    # speed-up → de-rumble → compress for consistent level → presence EQ →
+    # tame harsh sibilance → normalize to -16 LUFS (leaves headroom for music;
+    # the final mix is brought to platform -14 LUFS in assemble.py).
     speed = cfg["tts"].get("speed", 1.0)
+    chain = (
+        f"atempo={speed},"
+        "highpass=f=85,"                                  # cut low rumble/hum
+        "acompressor=threshold=-20dB:ratio=3.5:attack=5:release=140:makeup=3,"  # even, punchy level
+        "equalizer=f=180:t=q:w=1.0:g=-2,"                 # de-mud the low-mids
+        "equalizer=f=3200:t=q:w=1.6:g=3,"                 # presence/intelligibility lift
+        "treble=g=2:f=9000,"                              # subtle air
+        "deesser=i=0.35,"                                 # reduce harsh "s" sounds
+        "loudnorm=I=-16:TP=-1.5:LRA=11,"
+        "alimiter=limit=0.95"                             # safety ceiling, no clipping
+    )
     run_ffmpeg([
         "-i", str(raw),
-        "-filter:a", f"atempo={speed},loudnorm=I=-16:TP=-1.5:LRA=11",
-        "-ar", "44100", str(final),
+        "-filter:a", chain,
+        "-ar", "48000", str(final),
     ])
     dur = ffprobe_duration(final)
-    log(f"voiceover: voice.mp3 ({dur:.1f}s, {provider})", "ok")
+    log(f"voiceover: voice.mp3 ({dur:.1f}s, {provider}, mastered)", "ok")
     return final
 
 
@@ -36,9 +50,11 @@ def _edge_tts(cfg: dict, text: str, out: Path) -> None:
     import edge_tts
 
     voice = cfg["tts"].get("edge_voice", "en-US-AriaNeural")
+    rate = cfg["tts"].get("edge_rate", "+0%")     # e.g. "+8%" for more energy
+    pitch = cfg["tts"].get("edge_pitch", "+0Hz")  # e.g. "+2Hz" for warmth
 
     async def _run():
-        await edge_tts.Communicate(text, voice).save(str(out))
+        await edge_tts.Communicate(text, voice, rate=rate, pitch=pitch).save(str(out))
 
     asyncio.run(_run())
 

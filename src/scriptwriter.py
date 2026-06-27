@@ -24,6 +24,8 @@ def write_script(cfg: dict, idea: dict) -> dict:
     prompt = load_prompt("script").format(
         niche=ch["niche"], name=ch["name"], tone=ch["tone"], audience=ch["audience"],
         title=idea["title"], concept=idea["concept"], hook_angle=idea.get("hook_angle", ""),
+        primary_keyword=idea.get("primary_keyword", idea["title"]),
+        search_question=idea.get("search_question", ""),
         target_seconds=target, word_budget=word_budget, word_budget_max=word_budget_max,
         disclaimer_line=disclaimer_line,
     )

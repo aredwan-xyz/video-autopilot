@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 from pathlib import Path
+from typing import Optional
 
 import requests
 
@@ -17,18 +18,25 @@ def gather_visuals(cfg: dict, script: dict, out_dir: Path, duration: float) -> l
     cut = cfg["video"]["cut_every_seconds"]
     needed = max(cfg["visuals"]["clips_per_video"], math.ceil(duration / cut))
 
-    # Build query list from per-beat visual cues, padded with the channel's visual style.
-    cues = [b.get("visual_cue", "") for b in script.get("beats", []) if b.get("visual_cue")]
+    # Map each beat's visual cue across the segments it covers, so visuals track the
+    # words being spoken. Pad/repeat to fill, fall back to the channel's visual style.
+    cues = [b.get("visual_cue", "").strip() for b in script.get("beats", [])
+            if b.get("visual_cue")]
     style = cfg["channel"].get("visual_style", "")
-    queries = (cues * needed)[:needed] if cues else [style] * needed
+    if cues:
+        # stretch the cue list to `needed` items, preserving order
+        queries = [cues[int(i * len(cues) / needed)] for i in range(needed)]
+    else:
+        queries = [style] * needed
 
     provider = cfg["visuals"]["provider"]
+    used_ids: set = set()  # avoid downloading the same Pexels clip twice in a row
     paths: list[Path] = []
     for i, q in enumerate(queries):
         dest = clips_dir / f"{i:02d}"
         try:
             if provider == "pexels":
-                paths.append(_pexels_video(q, dest, cfg))
+                paths.append(_pexels_video(q, dest, cfg, used_ids))
             elif provider in ("fal", "replicate"):
                 paths.append(_ai_image(q, dest, cfg, provider))
             else:
@@ -43,24 +51,34 @@ def gather_visuals(cfg: dict, script: dict, out_dir: Path, duration: float) -> l
     return paths
 
 
-def _pexels_video(query: str, dest: Path, cfg: dict) -> Path:
+def _pexels_video(query: str, dest: Path, cfg: dict, used_ids: Optional[set] = None) -> Path:
     key = env("PEXELS_API_KEY")
     if not key:
         raise SystemExit("PEXELS_API_KEY missing in .env")
+    used_ids = used_ids if used_ids is not None else set()
     r = requests.get(
         "https://api.pexels.com/videos/search",
         headers={"Authorization": key},
-        params={"query": query, "orientation": "portrait", "per_page": 5, "size": "medium"},
+        params={"query": query, "orientation": "portrait", "per_page": 12, "size": "large"},
         timeout=30,
     )
     r.raise_for_status()
     videos = r.json().get("videos", [])
     if not videos:
         raise RuntimeError("no Pexels results")
-    # Pick a portrait file with a reasonable resolution.
+
+    # Prefer a fresh result (not already used) so consecutive clips differ.
+    fresh = [v for v in videos if v.get("id") not in used_ids] or videos
+    video = fresh[0]
+    used_ids.add(video.get("id"))
+
+    # Pick a crisp portrait file: tall enough for 1080x1920 but not absurdly large.
+    portrait = [f for f in video["video_files"]
+                if (f.get("height") or 0) >= (f.get("width") or 0)]
+    pool = portrait or video["video_files"]
     files = sorted(
-        videos[0]["video_files"],
-        key=lambda f: abs((f.get("height") or 0) - 1920),
+        pool,
+        key=lambda f: (abs((f.get("height") or 0) - 1920), -(f.get("width") or 0)),
     )
     url = files[0]["link"]
     out = dest.with_suffix(".mp4")
