@@ -9,6 +9,13 @@ Hook angle: {hook_angle}
 Primary keyword (say it naturally in the first 5 seconds): {primary_keyword}
 Question this video must answer: {search_question}
 
+VOICE REFERENCE — the creator's own past scripts. Match this voice, rhythm, and phrasing
+(do NOT copy the content, only the style):
+{style_reference}
+
+CREATOR STRATEGY & NOTES — the creator's guidance; follow it when present:
+{creator_notes}
+
 ═══ THE HOOK (first line — most important line of the whole video) ═══
 The first 3 seconds decide everything. Write a hook ≤12 words that does ONE of these:
 - Names a mistake the viewer is probably making ("You're charging your phone wrong.")

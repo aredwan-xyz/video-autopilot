@@ -5,6 +5,13 @@ __pycache__/
 output/*
 !output/.gitkeep
 !output/history.json
+
+# Your private content data — ignored by default so it isn't published (repo is public).
+# Force-add (git add -f data/...) only if you want the cloud autopilot to use it. See data/README.md.
+data/scripts/*
+data/notes/*
+!data/scripts/.gitkeep
+!data/notes/.gitkeep
 assets/music/*
 !assets/music/.gitkeep
 assets/fonts/*

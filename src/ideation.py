@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from .config import load_prompt
+from .knowledge import strategy_notes
 from .llm import complete
 from .utils import extract_json, log, recent_topics
 
@@ -19,6 +20,7 @@ def get_trends(cfg: dict) -> list[str]:
 def generate_idea(cfg: dict) -> dict:
     ch = cfg["channel"]
     trends = get_trends(cfg)
+    notes = strategy_notes(ch["key"])
     prompt = load_prompt("ideation").format(
         niche=ch["niche"],
         name=ch["name"],
@@ -26,6 +28,7 @@ def generate_idea(cfg: dict) -> dict:
         angle=ch["angle"],
         trends="\n".join(f"- {t}" for t in trends) or "(none — use your niche expertise)",
         recent_topics="\n".join(f"- {t}" for t in recent_topics(ch["key"])) or "(none yet)",
+        creator_notes=notes or "(none provided)",
         n=6,
     )
     data = extract_json(complete(prompt, cfg, max_tokens=1200))

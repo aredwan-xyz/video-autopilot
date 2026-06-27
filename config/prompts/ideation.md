@@ -5,6 +5,9 @@ and you reverse-engineer the highest-performing videos in this niche.
 Audience: {audience}
 Editorial angle: {angle}
 
+CREATOR STRATEGY & NOTES (the channel owner's own guidance — follow it closely when present):
+{creator_notes}
+
 Recent trends/keywords to consider (may be empty):
 {trends}
 

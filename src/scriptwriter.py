@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 
 from .config import load_prompt
+from .knowledge import strategy_notes, style_examples
 from .llm import complete
 from .utils import extract_json, log
 
@@ -21,11 +22,15 @@ def write_script(cfg: dict, idea: dict) -> dict:
         if text:
             disclaimer_line = f'- End the script with this exact disclaimer: "{text}"'
 
+    voice_ref = style_examples(ch["key"])
+    notes = strategy_notes(ch["key"])
     prompt = load_prompt("script").format(
         niche=ch["niche"], name=ch["name"], tone=ch["tone"], audience=ch["audience"],
         title=idea["title"], concept=idea["concept"], hook_angle=idea.get("hook_angle", ""),
         primary_keyword=idea.get("primary_keyword", idea["title"]),
         search_question=idea.get("search_question", ""),
+        style_reference=voice_ref or "(none provided — use the tone above)",
+        creator_notes=notes or "(none provided)",
         target_seconds=target, word_budget=word_budget, word_budget_max=word_budget_max,
         disclaimer_line=disclaimer_line,
     )
