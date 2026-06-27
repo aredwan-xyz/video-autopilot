@@ -9,7 +9,7 @@ Tick a box when something ships, move rows between sections, and keep the dates 
 > 🤖 **Auto-maintained.** This file is kept current automatically — every shipped feature,
 > status change, and new idea is recorded here as work happens, without needing to be asked.
 
-_Last updated: 2026-06-26_
+_Last updated: 2026-06-26 · in progress: ingest existing content data_
 
 ---
 
@@ -43,7 +43,11 @@ _Last updated: 2026-06-26_
 
 ## 🚧 In progress
 
-_(nothing active — pull the next item from Planned)_
+| Feature | Impact | Effort | Cost | Status |
+|---------|--------|--------|------|--------|
+| **Ingest existing content data** — feed the user's prior content-automation & video data (past topics, scripts, performance, style) into ideation + scriptwriting so the system learns from what already worked | 🔥 | 🟡 | free | 🚧 |
+
+_Open scope: confirm the data source/format (performance export, old scripts, video URLs, or notes) before implementing — see chat._
 
 ---
 
