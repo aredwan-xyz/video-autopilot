@@ -6,6 +6,9 @@ Tick a box when something ships, move rows between sections, and keep the dates 
 **Status legend:** ✅ shipped · 🚧 in progress · 📋 planned · 🧊 icebox (later/maybe)
 **Impact / Effort / Cost:** 🔥 high · 🟡 medium · ⚪ low · 💲 needs paid service
 
+> 🤖 **Auto-maintained.** This file is kept current automatically — every shipped feature,
+> status change, and new idea is recorded here as work happens, without needing to be asked.
+
 _Last updated: 2026-06-26_
 
 ---
