@@ -441,6 +441,7 @@ The code makes videos; these docs make them *win*:
 
 | Doc | What it covers |
 |-----|----------------|
+| **[ROADMAP.md](ROADMAP.md)** | Progress tracker — what's shipped, in progress, and planned |
 | **[docs/SETUP.md](docs/SETUP.md)** | Deeper install, account setup, API keys, first run |
 | **[docs/DEPLOY.md](docs/DEPLOY.md)** | Cloud deployment — VPS + cron or Docker, for unattended daily posting |
 | **[docs/PLAYBOOK.md](docs/PLAYBOOK.md)** | The strategy: niches, viral hooks, retention, cadence, monetization, scaling |
