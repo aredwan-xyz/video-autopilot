@@ -9,8 +9,8 @@ llm:
   #   FREE  groq       fast, generous free tier — model: llama-3.3-70b-versatile
   #   FREE  openrouter many free models — model: meta-llama/llama-3.1-8b-instruct:free
   #   FREE  gemini     Google free tier — model: gemini-1.5-flash
-  provider: groq
-  model: llama-3.3-70b-versatile
+  provider: gemini
+  model: gemini-1.5-flash
   temperature: 0.9             # higher = more creative hooks
 
 tts:
