@@ -56,15 +56,8 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=$GEMINI_API_KEY" \
-            | python3 -c "
-import json,sys
-data = json.load(sys.stdin)
-for m in data.get('models', []):
-    methods = m.get('supportedGenerationMethods', [])
-    if 'generateContent' in methods:
-        print(m['name'])
-" || echo "curl/parse failed"
+          curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=$GEMINI_API_KEY" -o /tmp/models.json
+          python3 -c "import json; d=json.load(open('/tmp/models.json')); [print(m['name']) for m in d.get('models', []) if 'generateContent' in m.get('supportedGenerationMethods', [])]" || echo "parse failed"
 
       - name: Run pipeline
         env:
