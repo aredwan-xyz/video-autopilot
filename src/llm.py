@@ -77,12 +77,21 @@ def _openai_compatible(provider: str, prompt: str, llm: dict, max_tokens: int) -
     # Ollama ignores the key but the SDK still needs a non-empty string.
     client = OpenAI(api_key=key or "not-needed", base_url=base_url)
 
+    # Gemini's newer models "think" before answering, silently eating into max_tokens
+    # and truncating short JSON tasks. Disable it (not useful here) and add headroom.
+    extra_body = {}
+    call_max_tokens = max_tokens
+    if provider == "gemini":
+        extra_body = {"extra_body": {"google": {"thinking_config": {"thinking_budget": 0}}}}
+        call_max_tokens = max(max_tokens, 2048)
+
     def _call():
         resp = client.chat.completions.create(
             model=llm.get("model", fallback_model),
-            max_tokens=max_tokens,
+            max_tokens=call_max_tokens,
             temperature=llm.get("temperature", 0.9),
             messages=[{"role": "user", "content": prompt}],
+            **extra_body,
         )
         return resp.choices[0].message.content or ""
 
