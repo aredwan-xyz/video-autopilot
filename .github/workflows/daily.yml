@@ -52,13 +52,6 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: DEBUG - list available Gemini models
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=$GEMINI_API_KEY" -o /tmp/models.json
-          python3 -c "import json; d=json.load(open('/tmp/models.json')); [print(m['name']) for m in d.get('models', []) if 'generateContent' in m.get('supportedGenerationMethods', [])]" || echo "parse failed"
-
       - name: Run pipeline
         env:
           # Add whichever you use as repo Secrets (Settings → Secrets → Actions).

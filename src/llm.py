@@ -25,7 +25,7 @@ _OPENAI_COMPATIBLE = {
     "ollama":     ("http://localhost:11434/v1",                       None,                 "llama3.1",                          False),
     "groq":       ("https://api.groq.com/openai/v1",                  "GROQ_API_KEY",       "llama-3.3-70b-versatile",           True),
     "openrouter": ("https://openrouter.ai/api/v1",                    "OPENROUTER_API_KEY", "meta-llama/llama-3.1-8b-instruct:free", True),
-    "gemini":     ("https://generativelanguage.googleapis.com/v1beta/openai/", "GEMINI_API_KEY", "gemini-2.5-flash",            True),
+    "gemini":     ("https://generativelanguage.googleapis.com/v1beta/openai/", "GEMINI_API_KEY", "gemini-flash-latest",         True),
 }
 
 
