@@ -35,8 +35,8 @@ def gather_visuals(cfg: dict, script: dict, out_dir: Path, duration: float) -> l
     for i, q in enumerate(queries):
         dest = clips_dir / f"{i:02d}"
         try:
-            if provider == "pexels":
-                paths.append(_pexels_video(q, dest, cfg, used_ids))
+            if provider == "pixabay":
+                paths.append(_pixabay_video(q, dest, cfg, used_ids))
             elif provider in ("fal", "replicate"):
                 paths.append(_ai_image(q, dest, cfg, provider))
             else:
