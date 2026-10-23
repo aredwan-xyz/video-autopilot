@@ -96,5 +96,5 @@ jobs:
           path: |
             output/**/final.mp4
             output/**/metadata.json
-          if-no-files-found: ignore
+          if-no-files-found: warn
           retention-days: 7
