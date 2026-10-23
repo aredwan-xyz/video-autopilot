@@ -68,8 +68,7 @@ publish:
   provider: dry_run            # dry_run | ayrshare | upload_post
   queue: false                 # true = generate + queue for manual review, don't post live
   stagger_seconds: 300         # space platform uploads apart
-  platforms: [youtube, tiktok, instagram, facebook]
-
+  platforms: [youtube]
 compliance:
   ai_disclosure: true          # adds AI-assisted note + platform synthetic-media flag
   disclaimers:
