@@ -1,52 +1,5 @@
 
-Yes! Copy this entire section, starting at def _call(): and ending at return _with_retry(_call, llm).
-
-Delete the old section from def _call(): through the old return _with_retry(_call, llm), then paste this:
-
-    def _call():
-        options = {
-            "model": llm.get("model", fallback_model),
-            "max_tokens": call_max_tokens,
-            "temperature": llm.get("temperature", 0.9),
-            "messages": [{"role": "user", "content": prompt}],
-        }
-
-        if provider == "gemini":
-            options["response_format"] = {"type": "json_object"}
-
-        resp = client.chat.completions.create(**options)
-        return resp.choices[0].message.content or ""
-
-    return _with_retry(_call, llm)
-Leave the call_max_tokens = ... line above it untouched. Also leave everything below it untouched.
-
-Send me a screenshot after pasting, before committing the change.
-
-
-Give me that whole script and I'll just redo the whole thing.
-
-Absolutely. Let's make it easier. Delete everything currently inside src/llm.py and replace it with this complete corrected script.
-
-Copy the entire code below, from the first line to the last line.
-
-
-"""LLM adapter — Claude, OpenAI, and several free/cheap providers. Returns plain text.
-
-Providers (set `llm.provider` in config/settings.yaml):
-
-  Paid / pay-as-you-go
-    anthropic    Claude (default)            key: ANTHROPIC_API_KEY
-    openai       GPT                         key: OPENAI_API_KEY
-
-  Free (no cost)
-    ollama       100% local, no key, no internet. Run `ollama serve` + `ollama pull llama3.1`.
-    groq         Generous free tier, very fast.   key: GROQ_API_KEY
-    openrouter   Has many ":free" models.         key: OPENROUTER_API_KEY
-    gemini       Google's free tier.              key: GEMINI_API_KEY
-
-Groq, OpenRouter, Gemini, and Ollama all speak the OpenAI-compatible API, so they share
-one adapter — only the base URL, key, and default model differ.
-"""
+"""LLM adapter — Claude, OpenAI, and several free/cheap providers."""
 from __future__ import annotations
 
 from .config import env
@@ -54,34 +7,23 @@ from .config import env
 # provider -> (base_url, api-key env var, fallback model, key-required?)
 _OPENAI_COMPATIBLE = {
     "openai": (
-        None,
-        "OPENAI_API_KEY",
-        "gpt-4o-mini",
-        True,
+        None, "OPENAI_API_KEY", "gpt-4o-mini", True
     ),
     "ollama": (
-        "http://localhost:11434/v1",
-        None,
-        "llama3.1",
-        False,
+        "http://localhost:11434/v1", None, "llama3.1", False
     ),
     "groq": (
         "https://api.groq.com/openai/v1",
-        "GROQ_API_KEY",
-        "llama-3.3-70b-versatile",
-        True,
+        "GROQ_API_KEY", "llama-3.3-70b-versatile", True
     ),
     "openrouter": (
         "https://openrouter.ai/api/v1",
         "OPENROUTER_API_KEY",
-        "meta-llama/llama-3.1-8b-instruct:free",
-        True,
+        "meta-llama/llama-3.1-8b-instruct:free", True
     ),
     "gemini": (
         "https://generativelanguage.googleapis.com/v1beta/openai/",
-        "GEMINI_API_KEY",
-        "gemini-flash-latest",
-        True,
+        "GEMINI_API_KEY", "gemini-flash-latest", True
     ),
 }
 
@@ -142,10 +84,8 @@ def _openai_compatible(
             "Install it with: pip install openai"
         )
 
-    # Ollama ignores the key but the SDK still needs a non-empty string.
     client = OpenAI(api_key=key or "not-needed", base_url=base_url)
 
-    # Give Gemini extra token room for its thinking process.
     call_max_tokens = (
         max(max_tokens, 4096) if provider == "gemini" else max_tokens
     )
@@ -158,7 +98,6 @@ def _openai_compatible(
             "messages": [{"role": "user", "content": prompt}],
         }
 
-        # Ask Gemini to return valid JSON.
         if provider == "gemini":
             options["response_format"] = {"type": "json_object"}
 
@@ -169,10 +108,6 @@ def _openai_compatible(
 
 
 def _with_retry(call, llm: dict):
-    """Retry on rate limits — free tiers (OpenRouter/Groq/Gemini) 429 often.
-
-    Honors the provider's Retry-After hint when present, else exponential backoff.
-    """
     import time
 
     from openai import APIConnectionError, RateLimitError
@@ -196,45 +131,12 @@ def _with_retry(call, llm: dict):
 
 
 def _retry_after(err) -> float | None:
-    """Pull a Retry-After hint (seconds) out of an OpenAI-style error."""
     try:
         meta = err.response.json().get("error", {}).get("metadata", {})
-        v = (
+        value = (
             meta.get("retry_after_seconds")
             or meta.get("headers", {}).get("Retry-After")
         )
-        return float(v) if v is not None else None
+        return float(value) if value is not None else None
     except Exception:
         return None
-Now do these steps
-Open src/llm.py in GitHub.
-
-Tap Edit.
-
-Select all the old code and delete it.
-
-Paste the complete script above.
-
-Check that the first line starts with """LLM adapter.
-
-Scroll down and make sure the last line is return None? No—the last line should be return None only if changed? It should be return None?
-
-Correction: the last line in the script above is return None? The intended final line is return None only if no retry header exists; the code above ends with return None? Actually it ends at return None? Ensure the final except block ends with return None if the value cannot be parsed.
-
-7. Save using Commit changes.
-
-Important: Keep the workflow's dry-run option checked when we test. Gemini's earlier quota limit is separate; this code change won't reset it.
-
-
-Include the zero nine in that Python paragraph coding for step three. Thank you.
-
-Of course! Include this exact line in the Python code for Step 3:
-
-"temperature": llm.get("temperature", 0.9),
-The 0.9 is important. Keep it exactly as written, including the decimal point. Don't change it to 0 or 9.
-
-
-
-
-
-No file chosen
