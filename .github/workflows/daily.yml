@@ -61,7 +61,7 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
-          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           FAL_KEY: ${{ secrets.FAL_KEY }}
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
           AYRSHARE_API_KEY: ${{ secrets.AYRSHARE_API_KEY }}
@@ -96,5 +96,5 @@ jobs:
           path: |
             output/**/final.mp4
             output/**/metadata.json
-          if-no-files-found: ignore
+          if-no-files-found: warn
           retention-days: 7
