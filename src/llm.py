@@ -139,4 +139,4 @@ def _retry_after(err) -> float | None:
         )
         return float(value) if value is not None else None
     except Exception:
-        return None
+         return None
