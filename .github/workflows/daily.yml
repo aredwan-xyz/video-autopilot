@@ -1,6 +1,6 @@
 name: Daily Video Autopilot
 
-# Runs the pipeline on a schedule (free, no server needed) and on a manual button.
+# Runs generation on a schedule and on a manual button. Publishing stays dry-run by default.
 on:
   schedule:
     # 09:00 UTC every day. GitHub cron is UTC; adjust to your timezone.
@@ -30,6 +30,9 @@ jobs:
   produce:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      # Keep untrusted workflow inputs out of shell source.
+      SELECTED_CHANNEL: ${{ inputs.channel }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -73,20 +76,25 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.dry_run }}" = "true" ]; then
             DRY="--dry-run"
           fi
-          if [ -n "${{ inputs.channel }}" ]; then
-            python -m src.orchestrator --channel "${{ inputs.channel }}" --count 1 $DRY
+          if [ -n "$SELECTED_CHANNEL" ]; then
+            python -m src.orchestrator --channel "$SELECTED_CHANNEL" --count 1 $DRY
           else
             python -m src.orchestrator --all $DRY
           fi
 
+      - name: Verify required artifacts
+        run: python -m src.orchestrator --verify-manifest
+
       - name: Persist topic history (anti-repeat memory)
-        if: always()
+        if: success()
         run: |
           git config user.name "video-autopilot[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f output/history.json 2>/dev/null || true
-          git commit -m "chore: update topic history [skip ci]" || echo "no history changes"
-          git push || echo "nothing to push"
+          git add -- output/history.json
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: update topic history [skip ci]"
+            git push
+          fi
 
       - name: Upload built videos (review for dry-runs)
         if: always()
@@ -96,5 +104,14 @@ jobs:
           path: |
             output/**/final.mp4
             output/**/metadata.json
-          if-no-files-found: ignore
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload run result (including failed attempts)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-${{ github.run_number }}
+          path: output/run-manifest.json
+          if-no-files-found: error
           retention-days: 7
