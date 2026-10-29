@@ -1,0 +1,4 @@
+# Offline tests mock paid providers and all video stages.
+PyYAML==6.0.2
+python-dotenv==1.0.1
+requests==2.32.5
