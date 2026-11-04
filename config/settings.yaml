@@ -23,7 +23,7 @@ tts:
   elevenlabs_stability: 0.4
 
 visuals:
-  provider: pexels             # pexels (free stock) | fal | replicate (AI images)
+  provider: pixabay          # pexels (free stock) | fal | replicate (AI images)
   clips_per_video: 12          # ~1 visual per 2–3s of a 25–35s video
   orientation: portrait        # portrait b-roll for 9:16
   ai_image_style: "cinematic, high detail, dramatic lighting, vertical 9:16"
@@ -68,8 +68,7 @@ publish:
   provider: dry_run            # dry_run | ayrshare | upload_post
   queue: false                 # true = generate + queue for manual review, don't post live
   stagger_seconds: 300         # space platform uploads apart
-  platforms: [youtube, tiktok, instagram, facebook]
-
+  platforms: [youtube]
 compliance:
   ai_disclosure: true          # adds AI-assisted note + platform synthetic-media flag
   disclaimers:
