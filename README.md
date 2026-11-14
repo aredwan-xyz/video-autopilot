@@ -1,11 +1,13 @@
 # Video Autopilot 🎬🤖
 
-A complete, self-hosted system that **generates and posts 1–3 faceless AI videos every day**
-to **YouTube Shorts, Instagram Reels, Facebook Reels, and TikTok** — fully on autopilot.
+A self-hosted prototype for generating short-form videos, with optional publishing
+adapters for YouTube, Instagram, Facebook and TikTok. The checked-in configuration
+uses Gemini for text and **dry-run publishing**. A scheduled run is not proof of a
+published video; see its artifact manifest and platform confirmation.
 
 It runs a daily pipeline: **trend/idea research → script → AI voiceover → visuals/B-roll →
-word-by-word captions → 9:16 video assembly → thumbnail → SEO metadata → multi-platform
-publish → analytics feedback loop.**
+word-by-word captions → 9:16 video assembly → metadata → optional publishing.**
+Analytics currently records local run history; live platform KPI collection is a stub.
 
 ```
  ┌───────────┐   ┌──────────┐   ┌───────────┐   ┌──────────┐   ┌──────────┐
@@ -47,11 +49,32 @@ publish → analytics feedback loop.**
 
 ## 1. What you get
 
+**Release status:** prototype. Before public operation, run the offline regression suite,
+generate and inspect a real video, and verify the intended platform's receipt and final post.
+
+```bash
+python -m pip install -r requirements-test.txt
+python -m unittest discover -s tests -v
+```
+
+Every generation invocation overwrites `output/run-manifest.json`. Exit code zero requires
+all requested videos plus their metadata to exist and publishing to complete its requested
+mode. `--all` with zero channels, missing/empty output, failed generation, and partial publish
+fail the run. The CI job requires the manifest and video artifacts instead of treating a
+green workflow as evidence of a social post.
+
+Publication statuses have separate meanings: `dry_run` only builds files; `queued` retains
+them for review; `submitted` means the provider accepted the request and still needs platform
+confirmation; `posted` is reserved for a future adapter that verifies publication.
+`partial_error` and `error` fail the generation invocation. Publishing POST requests are not
+automatically retried because duplicate posts could result. Text-model calls have bounded
+timeouts and retries for transient failures.
+
 - **9-stage pipeline**, one Python module per stage — fully swappable providers.
 - **A web dashboard** to generate, monitor, browse, and configure everything from the browser.
 - **3 pre-built channels** (motivation, finance, psychology) you can run immediately.
-- **A free path**: works end-to-end with $0/month providers (edge-tts + Pexels + local Whisper + dry-run).
-- **An autopilot path**: one daily cron job builds and posts every channel's quota.
+- **A local review path**: generate files with configured providers and review them before publishing. Provider quotas, hardware and hosting costs vary.
+- **A scheduled path**: a daily job attempts every channel's quota and fails if any required output is missing.
 - **Anti-repeat memory** (`output/history.json`) so topics never duplicate across runs.
 - **A complete strategy playbook** (niches, hooks, retention, monetization, compliance).
 
@@ -65,8 +88,8 @@ publish → analytics feedback loop.**
 | **Python 3.9+** | Runs the pipeline | 3.10+ recommended; 3.9 works fine. |
 | **ffmpeg** | Video/audio assembly | Installed automatically by the setup script. |
 | **Homebrew** (macOS) | Installs ffmpeg | Get it at [brew.sh](https://brew.sh) if you don't have it. |
-| **An LLM API key** | Scripts + ideas | **Anthropic Claude** (default) or OpenAI. Required. |
-| **A Pexels API key** | Free stock B-roll | Free, unlimited. Required for the default visuals provider. |
+| **An LLM provider** | Scripts + ideas | Gemini is configured by default; use its key, or choose another adapter. Local Ollama needs no API key. |
+| **A Pexels API key** | Stock B-roll | Required for default visuals; subject to provider limits. |
 | ~2 GB disk | Whisper model + renders | The caption model downloads once on first run. |
 
 Everything else (premium voices, AI images, auto-publishing) is **optional** and opt-in.
@@ -76,7 +99,8 @@ Everything else (premium voices, AI images, auto-publishing) is **optional** and
 ## 3. Install (10 minutes)
 
 ```bash
-cd /Users/aredwan/Documents/Projects/Video_Autopilot
+git clone https://github.com/aredwan-xyz/video-autopilot.git
+cd video-autopilot
 
 # One-shot installer: installs ffmpeg, creates a .venv, installs deps,
 # and downloads the default caption font.
@@ -109,10 +133,10 @@ Copy the template and fill in **only** the providers you'll use:
 cp .env.example .env
 ```
 
-Then edit `.env`. **Minimum to start (both free):**
+Then edit `.env`. **Minimum for the checked-in configuration:**
 
 ```ini
-ANTHROPIC_API_KEY=sk-ant-...
+GEMINI_API_KEY=your_key
 PEXELS_API_KEY=...
 ```
 
@@ -120,13 +144,13 @@ PEXELS_API_KEY=...
 
 | Key | Get it at | Cost | Needed for |
 |-----|-----------|------|------------|
-| `ANTHROPIC_API_KEY` | [console.anthropic.com](https://console.anthropic.com) → API Keys | Pay-as-you-go (~$0.01–0.03/video). **Requires credits.** | Ideas + scripts (default LLM) |
+| `ANTHROPIC_API_KEY` | [console.anthropic.com](https://console.anthropic.com) → API Keys | Paid; check current provider pricing | Optional text adapter |
 | `OPENAI_API_KEY` | [platform.openai.com](https://platform.openai.com) | Pay-as-you-go | Alternative LLM (`llm.provider: openai`) |
 | `GROQ_API_KEY` | [console.groq.com](https://console.groq.com) | **Free tier** | Free LLM (`llm.provider: groq`) |
 | `OPENROUTER_API_KEY` | [openrouter.ai/keys](https://openrouter.ai/keys) | **Free models available** | Free LLM (`llm.provider: openrouter`) |
 | `GEMINI_API_KEY` | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | **Free tier** | Free LLM (`llm.provider: gemini`) |
 | *(none — Ollama)* | [ollama.com](https://ollama.com) | **Free, local, no key** | Free offline LLM (`llm.provider: ollama`) |
-| `PEXELS_API_KEY` | [pexels.com/api](https://www.pexels.com/api/) | **Free, unlimited** | Stock B-roll (default visuals) |
+| `PEXELS_API_KEY` | [pexels.com/api](https://www.pexels.com/api/) | Subject to provider quota and terms | Stock B-roll (default visuals) |
 | `ELEVENLABS_API_KEY` | [elevenlabs.io](https://elevenlabs.io) | Free tier (10k chars/mo), then paid | Premium voiceover (optional) |
 | `FAL_KEY` | [fal.ai](https://fal.ai) | Pay-per-image | AI-generated visuals (optional) |
 | `REPLICATE_API_TOKEN` | [replicate.com](https://replicate.com) | Pay-per-image | AI-generated visuals (optional) |
@@ -143,8 +167,8 @@ PEXELS_API_KEY=...
 > FAL_KEY=
 > ```
 
-> 💡 The default `llm.model` is `claude-sonnet-4-6` (fast + cheap). For the highest
-> script quality switch to `claude-opus-4-8` in `config/settings.yaml`.
+> The checked-in model is `gemini-3.8-flash`, a stable default. Verify access in your
+> project, inspect a real generated video and update this setting deliberately as models retire.
 
 ### Choosing your LLM (including 100% free options)
 
@@ -153,12 +177,12 @@ code changes needed. You have six providers, including several **free** ones:
 
 | `provider:` | Cost | Key needed | Suggested `model:` | Notes |
 |-------------|------|------------|--------------------|-------|
-| `anthropic` | Paid | `ANTHROPIC_API_KEY` | `claude-sonnet-4-6` / `claude-opus-4-8` | Best script quality (default) |
+| `anthropic` | Paid | `ANTHROPIC_API_KEY` | Select an available model | Optional adapter |
 | `openai` | Paid | `OPENAI_API_KEY` | `gpt-4o-mini` / `gpt-4o` | Solid alternative |
 | `ollama` | **Free** | none | `llama3.1` / `qwen2.5` | 100% local & offline — best free option |
 | `groq` | **Free** | `GROQ_API_KEY` | `llama-3.3-70b-versatile` | Very fast, generous free tier |
 | `openrouter` | **Free** | `OPENROUTER_API_KEY` | `meta-llama/llama-3.1-8b-instruct:free` | Many `:free` models |
-| `gemini` | **Free** | `GEMINI_API_KEY` | `gemini-1.5-flash` | Google's free tier |
+| `gemini` | Usage tier dependent | `GEMINI_API_KEY` | `gemini-3.8-flash` | Current checked-in stable default |
 
 **Example — switch to free Groq:**
 ```yaml
@@ -184,9 +208,8 @@ llm:
 ```
 No key required — Ollama runs entirely on your machine.
 
-> Quality ranking for scripts: Claude/GPT (paid) ≥ Groq Llama-3.3-70B ≈ Gemini Flash >
-> local Llama-3.1-8B. The free tiers are very usable; start free, upgrade only if scripts
-> feel flat.
+> Compare providers on your own script samples. Cost, access and output quality depend on
+> the model, task and project quota; these adapters are not a benchmark ranking.
 
 ---
 
@@ -303,7 +326,7 @@ crontab -e
 Add a line to run every day at 9:00 AM (logs to a file):
 
 ```cron
-0 9 * * * /Users/aredwan/Documents/Projects/Video_Autopilot/scripts/run_daily.sh >> /Users/aredwan/Documents/Projects/Video_Autopilot/output/cron.log 2>&1
+0 9 * * * /absolute/path/to/video-autopilot/scripts/run_daily.sh >> /absolute/path/to/video-autopilot/output/cron.log 2>&1
 ```
 
 ### Option B — macOS `launchd` (survives sleep better than cron)
@@ -335,8 +358,8 @@ The whole value of this system is **unattended daily posting**, so where it runs
 3. **For hands-off autopilot** → move to a cheap cloud VPS (Hetzner/DigitalOcean ~$6/mo) with
    the daily cron from §9. Your laptop stays free and posts happen even while you sleep.
 
-**Zero-server option:** run it free on **GitHub Actions** — a scheduled workflow builds and
-posts your videos daily with no VPS at all. The workflow ships in
+**GitHub Actions option:** a scheduled workflow attempts generation without a VPS.
+Provider quotas, runner limits and publishing configuration still apply. The workflow ships in
 [`.github/workflows/daily.yml`](.github/workflows/daily.yml); setup is in
 [docs/DEPLOY.md → Path C](docs/DEPLOY.md#path-c--github-actions-free-no-server-at-all).
 
@@ -358,11 +381,12 @@ option**. Switch providers in `config/settings.yaml` — **no code changes**.
 | Assembly | **ffmpeg** (free) | — |
 | Publishing | `dry_run` (free, local only) | **Ayrshare / upload-post** (1 API → all 4 platforms) |
 
-**100% free setup:** Ollama (or Groq) + edge-tts + Pexels + local Whisper + dry-run/manual
-upload — **$0/month**. Add a paid publish aggregator only when you want true auto-posting.
+**Local review setup:** Ollama + edge-tts + Pexels + local Whisper + dry-run/manual
+upload can reduce API spending. This is not a zero-cost or uptime guarantee; verify licenses,
+quotas, compute costs and platform requirements for your use.
 
 **Best-quality cheap setup:** Claude Sonnet + edge-tts + Pexels + local Whisper + Ayrshare.
-LLM cost is roughly **$0.01–0.03 per video**; the only fixed cost is the publish aggregator.
+Measure actual LLM usage, rendering and publishing costs before setting a production budget.
 
 ---
 

@@ -16,6 +16,8 @@ from .utils import log
 def publish(cfg: dict, video: Path, meta: dict) -> dict:
     provider = cfg["publish"]["provider"]
     platforms = cfg["publish"]["platforms"]
+    if not platforms:
+        raise ValueError("At least one publish platform is required")
     caption = _caption(meta)
 
     if cfg["publish"].get("queue"):
@@ -46,13 +48,16 @@ def _ayrshare(cfg, video, meta, caption, platforms) -> dict:
         raise SystemExit("AYRSHARE_API_KEY missing in .env")
 
     # Ayrshare needs a public URL; upload to its media endpoint first.
-    up = requests.post(
-        "https://api.ayrshare.com/api/media/upload",
-        headers={"Authorization": f"Bearer {key}"},
-        files={"file": open(video, "rb")}, timeout=300,
-    )
+    with video.open("rb") as media:
+        up = requests.post(
+            "https://api.ayrshare.com/api/media/upload",
+            headers={"Authorization": f"Bearer {key}"},
+            files={"file": media}, timeout=300,
+        )
     up.raise_for_status()
     media_url = up.json().get("url") or up.json().get("mediaUrl")
+    if not media_url:
+        raise RuntimeError("Media upload returned no media URL")
 
     results = {}
     for i, platform in enumerate(platforms):
@@ -73,10 +78,17 @@ def _ayrshare(cfg, video, meta, caption, platforms) -> dict:
             headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
             json=payload, timeout=120,
         )
-        ok = r.status_code < 300
-        results[platform] = "posted" if ok else f"error {r.status_code}: {r.text[:200]}"
+        # An HTTP receipt is not confirmation that a social platform posted the video.
+        try:
+            body = r.json()
+        except ValueError:
+            body = {}
+        ok = 200 <= r.status_code < 300 and body.get("status") != "error" and not body.get("errors")
+        results[platform] = "submitted" if ok else f"error HTTP {r.status_code}"
         log(f"publish→{platform}: {results[platform]}", "ok" if ok else "err")
-    return {"status": "posted", "results": results}
+    submitted = sum(value == "submitted" for value in results.values())
+    status = "submitted" if submitted == len(platforms) else "partial_error" if submitted else "error"
+    return {"status": status, "results": results}
 
 
 def _upload_post(cfg, video, meta, caption, platforms) -> dict:
@@ -86,13 +98,18 @@ def _upload_post(cfg, video, meta, caption, platforms) -> dict:
     user = env("UPLOAD_POST_USER")
     if not key:
         raise SystemExit("UPLOAD_POST_API_KEY missing in .env")
-    r = requests.post(
-        "https://api.upload-post.com/api/upload",
-        headers={"Authorization": f"Apikey {key}"},
-        data={"user": user, "title": meta["title"][:100],
-              "caption": caption, "platform[]": platforms},
-        files={"video": open(video, "rb")}, timeout=300,
-    )
-    ok = r.status_code < 300
+    with video.open("rb") as media:
+        r = requests.post(
+            "https://api.upload-post.com/api/upload",
+            headers={"Authorization": f"Apikey {key}"},
+            data={"user": user, "title": meta["title"][:100],
+                  "caption": caption, "platform[]": platforms},
+            files={"video": media}, timeout=300,
+        )
+    try:
+        body = r.json()
+    except ValueError:
+        body = {}
+    ok = 200 <= r.status_code < 300 and not body.get("error") and not body.get("errors") and body.get("status") != "error"
     log(f"publish: upload-post {'ok' if ok else 'error'} ({r.status_code})", "ok" if ok else "err")
-    return {"status": "posted" if ok else "error", "response": r.text[:300]}
+    return {"status": "submitted" if ok else "error", "http_status": r.status_code}
