@@ -25,7 +25,7 @@ _OPENAI_COMPATIBLE = {
     "ollama":     ("http://localhost:11434/v1",                       None,                 "llama3.1",                          False),
     "groq":       ("https://api.groq.com/openai/v1",                  "GROQ_API_KEY",       "llama-3.3-70b-versatile",           True),
     "openrouter": ("https://openrouter.ai/api/v1",                    "OPENROUTER_API_KEY", "meta-llama/llama-3.1-8b-instruct:free", True),
-    "gemini":     ("https://generativelanguage.googleapis.com/v1beta/openai/", "GEMINI_API_KEY", "gemini-flash-latest",         True),
+    "gemini":     ("https://generativelanguage.googleapis.com/v1beta/openai/", "GEMINI_API_KEY", "gemini-3.8-flash",         True),
 }
 
 
@@ -48,7 +48,7 @@ def _anthropic(prompt: str, llm: dict, max_tokens: int) -> str:
     key = env("ANTHROPIC_API_KEY")
     if not key:
         raise SystemExit("ANTHROPIC_API_KEY missing in .env")
-    client = anthropic.Anthropic(api_key=key)
+    client = anthropic.Anthropic(api_key=key, timeout=60.0, max_retries=2)
     resp = client.messages.create(
         model=llm.get("model", "claude-sonnet-4-6"),
         max_tokens=max_tokens,
@@ -75,7 +75,8 @@ def _openai_compatible(provider: str, prompt: str, llm: dict, max_tokens: int) -
             "Install it with: pip install openai"
         )
     # Ollama ignores the key but the SDK still needs a non-empty string.
-    client = OpenAI(api_key=key or "not-needed", base_url=base_url)
+    client = OpenAI(api_key=key or "not-needed", base_url=base_url,
+                    timeout=60.0, max_retries=0)
 
     # Gemini's newer models "think" before answering, silently eating into max_tokens
     # and truncating short JSON tasks. We can't reliably turn thinking off through this
@@ -95,23 +96,27 @@ def _openai_compatible(provider: str, prompt: str, llm: dict, max_tokens: int) -
 
 
 def _with_retry(call, llm: dict):
-    """Retry on rate limits — free tiers (OpenRouter/Groq/Gemini) 429 often.
+    """Bounded retries for transient provider failures, including 503.
 
     Honors the provider's Retry-After hint when present, else exponential backoff.
     """
     import time
 
-    from openai import APIConnectionError, RateLimitError
+    from openai import APIConnectionError, APIStatusError
 
-    retries = int(llm.get("max_retries", 4))
+    retries = min(max(int(llm.get("max_retries", 3)), 0), 5)
     for attempt in range(retries + 1):
         try:
             return call()
-        except (RateLimitError, APIConnectionError) as e:
+        except (APIStatusError, APIConnectionError) as e:
+            code = getattr(e, "status_code", None)
+            if code is not None and code not in (408, 409, 429) and code < 500:
+                raise
             if attempt == retries:
                 raise
-            wait = _retry_after(e) or min(2 ** attempt * 2, 30)
-            print(f"  ! LLM rate-limited; retrying in {wait:.0f}s "
+            hint = _retry_after(e)
+            wait = min(max(hint if hint is not None else 2 ** attempt * 2, 0), 30)
+            print(f"  ! Transient LLM failure; retrying in {wait:.0f}s "
                   f"(attempt {attempt + 1}/{retries})", flush=True)
             time.sleep(wait)
 
@@ -119,6 +124,9 @@ def _with_retry(call, llm: dict):
 def _retry_after(err) -> float | None:
     """Pull a Retry-After hint (seconds) out of an OpenAI-style error, if any."""
     try:
+        header = err.response.headers.get("retry-after")
+        if header is not None:
+            return float(header)
         meta = err.response.json().get("error", {}).get("metadata", {})
         v = meta.get("retry_after_seconds") or meta.get("headers", {}).get("Retry-After")
         return float(v) if v is not None else None
